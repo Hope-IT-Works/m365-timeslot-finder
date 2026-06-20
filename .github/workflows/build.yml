@@ -26,9 +26,12 @@ jobs:
       - name: Build extension ZIP
         run: bun run build:zip
 
+      - name: List output directory
+        run: ls -la .output/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: timeslot-finder-${{ github.sha }}
-          path: .output/*.zip
+          path: .output/**/*.zip
           retention-days: 30
