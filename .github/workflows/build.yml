@@ -26,12 +26,12 @@ jobs:
       - name: Build extension ZIP
         run: bun run build:zip
 
-      - name: List output directory
-        run: ls -la .output/
+      - name: Prepare artifact
+        run: cp .output/timeslot-finder-*.zip timeslot-finder.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: timeslot-finder-${{ github.sha }}
-          path: .output/**/*.zip
+          path: timeslot-finder.zip
           retention-days: 30
