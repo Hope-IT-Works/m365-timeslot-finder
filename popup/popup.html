@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M365 Timeslot-Finder for Outlook</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg class="logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/>
+                        <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h1>M365 Timeslot-Finder for Outlook</h1>
+                </div>
+                <div class="header-controls">
+                    <button id="themeToggle" class="btn-theme-toggle" data-i18n-title="themeToggleTitle" title="Toggle theme">
+                        <svg class="theme-icon-light" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <svg class="theme-icon-dark" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Auth Section -->
+        <div id="authSection" class="auth-section">
+            <div class="auth-card">
+                <div id="setupHint" class="setup-hint" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                    </svg>
+                    <span data-i18n="setupHintText">Please configure the Azure Client ID in settings first.</span>
+                </div>
+                <p class="auth-message" data-i18n="authMessage">Sign in with your Microsoft account to find available time slots.</p>
+                <button id="loginBtn" class="btn btn-primary" data-i18n="loginBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="9" height="9" fill="#F25022"/>
+                        <rect x="11" width="9" height="9" fill="#7FBA00"/>
+                        <rect y="11" width="9" height="9" fill="#00A4EF"/>
+                        <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+                    </svg>
+                    Sign in with Microsoft
+                </button>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                    <button id="settingsBtn" class="btn-link" data-i18n="settingsBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Azure AD Settings
+                    </button>
+                </div>
+            </div>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <div class="user-details">
+                    <div class="user-avatar">
+                        <span id="userInitials"></span>
+                    </div>
+                    <div class="user-text">
+                        <span id="userName" class="user-name"></span>
+                        <span id="userEmail" class="user-email"></span>
+                        <span id="userTenant" class="user-tenant"></span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button id="userSettingsBtn" class="btn-icon" data-i18n-title="userSettingsBtnTitle" title="Einstellungen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button id="logoutBtn" class="btn-icon" data-i18n-title="logoutBtnTitle" title="Abmelden">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 16L21 12M21 12L17 8M21 12H7M13 16V17C13 18.6569 11.6569 20 10 20H6C4.34315 20 3 18.6569 3 17V7C3 5.34315 4.34315 4 6 4H10C11.6569 4 13 5.34315 13 7V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div id="mainForm" style="display: none;">
+            <form id="timeslotForm" class="form">
+                <!-- Date & Time Section -->
+                <div class="form-section">
+                    <h2 class="section-title" data-i18n="sectionPeriod">Zeitraum</h2>
+                    
+                    <div class="form-group">
+                        <label for="startDateTime" class="label" data-i18n="labelStartTime">
+                            <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Start time
+                        </label>
+                        <input type="datetime-local" id="startDateTime" name="startDateTime" class="input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endDateTime" class="label" data-i18n="labelEndTime">
+                            <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            End time
+                        </label>
+                        <input type="datetime-local" id="endDateTime" name="endDateTime" class="input" required>
+                        <p id="dateRangeError" class="date-range-error" style="display: none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                            </svg>
+                            <span data-i18n="dateRangeError">End time must be after start time.</span>
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration" class="label" data-i18n="labelDuration">
+                            <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Meeting duration
+                        </label>
+                        <select id="duration" name="duration" class="input" required>
+                            <option value="15" data-i18n="duration15">15 minutes</option>
+                            <option value="30" selected data-i18n="duration30">30 minutes</option>
+                            <option value="45" data-i18n="duration45">45 minutes</option>
+                            <option value="60" data-i18n="duration60">1 hour</option>
+                            <option value="90" data-i18n="duration90">1.5 hours</option>
+                            <option value="120" data-i18n="duration120">2 hours</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Participants Section -->
+                <div class="form-section">
+                    <h2 class="section-title" data-i18n="sectionParticipants">Required Attendees</h2>
+                    
+                    <div class="form-group">
+                        <label for="participantSearch" class="label" data-i18n="labelParticipantSearch">
+                            <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Search attendees
+                        </label>
+                        <input type="text" id="participantSearch" data-i18n-placeholder="participantSearchPlaceholder" placeholder="Name or email address..." class="input">
+                    </div>
+
+                    <div id="participantsList" class="participants-list">
+                        <!-- Dynamically populated -->
+                    </div>
+
+                    <div id="selectedParticipants" class="selected-participants">
+                        <!-- Selected participants will appear here -->
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="findSlotsBtn" class="btn btn-primary btn-large" data-i18n="findSlotsBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Find free slots
+                </button>
+            </form>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state" style="display: none;">
+                <div class="spinner"></div>
+                <p data-i18n="loadingText">Searching for available time slots...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <h2 class="section-title" data-i18n="resultsSectionTitle">Available time slots</h2>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <span id="resultsCount" class="results-count"></span>
+                        <button id="newSearchBtn" class="btn-new-search" type="button" data-i18n="newSearchBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 3v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 21v-5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            New search
+                        </button>
+                    </div>
+                </div>
+                <div id="slotsList" class="slots-list">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div id="noResults" class="no-results" style="display: none;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                </svg>
+                <h3 data-i18n="noResultsTitle">No free slots found</h3>
+                <p data-i18n="noResultsText">Try a different time range or fewer attendees.</p>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 data-i18n="settingsTitle">Settings</h2>
+                    <button id="closeSettingsBtn" class="btn-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="settings-tabs">
+                    <button class="settings-tab active" id="generalTabBtn" data-i18n="tabGeneral">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        General
+                    </button>
+                    <button class="settings-tab" id="azureTabBtn" data-i18n="tabAzure">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Azure AD
+                    </button>
+                    <button class="settings-tab" id="templateTabBtn" data-i18n="tabTemplate">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <polyline points="10 9 9 9 8 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Output template
+                    </button>
+                    <button class="settings-tab" id="aboutTabBtn" data-i18n="tabAbout">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <line x1="12" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="12" y1="12" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        About
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- General Tab -->
+                    <div id="generalTabContent" class="tab-content">
+                        <div class="form-group">
+                            <label for="languageSelect" class="label" data-i18n="labelLanguage">Language</label>
+                            <select id="languageSelect" class="input">
+                                <option value="auto" data-i18n="langAuto">System language</option>
+                                <option value="de" data-i18n="langDe">Deutsch</option>
+                                <option value="en" data-i18n="langEn">English</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Azure AD Tab -->
+                    <div id="azureTabContent" class="tab-content" style="display: none;">
+                        <div class="form-group">
+                            <label for="clientIdInput" class="label" data-i18n="labelClientId">
+                                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Azure AD Client ID
+                            </label>
+                            <input type="text" id="clientIdInput" class="input" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                            <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 8px;" data-i18n="clientIdHint">
+                                The Client ID can be found in the Azure AD App Registration under "Overview" → "Application (client) ID"
+                            </p>
+                        </div>
+                        <div class="info-box">
+                            <strong style="display: block; margin-bottom: 12px;" data-i18n="redirectUriTitle">📋 Redirect URI</strong>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;" data-i18n="redirectUriHint">
+                                This URI must be registered in Azure AD under "Authentication" → "Single-page application".
+                            </p>
+                            <code id="redirectUriDisplay" class="code-block">-</code>
+                            <button id="copyRedirectBtn" class="btn btn-copy" style="width: 100%; margin-top: 12px;" data-i18n="copyUriBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                Copy URI
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Template Tab -->
+                    <div id="templateTabContent" class="tab-content" style="display: none;">
+                        <p class="settings-description" data-i18n="templateDescription">
+                            Customize the copied text freely. Click a placeholder to insert it at the cursor position.
+                        </p>
+                        <div class="form-group">
+                            <label class="label" data-i18n="labelPlaceholders">Available placeholders</label>
+                            <div class="template-chips">
+                                <button type="button" class="template-chip" data-var="{{date}}" data-i18n-title="tipDate" title="Date with weekday">{{date}}</button>
+                                <button type="button" class="template-chip" data-var="{{weekday}}" data-i18n-title="tipWeekday" title="Weekday">{{weekday}}</button>
+                                <button type="button" class="template-chip" data-var="{{weekday_short}}" data-i18n-title="tipWeekdayShort" title="Short weekday">{{weekday_short}}</button>
+                                <button type="button" class="template-chip" data-var="{{date_short}}" data-i18n-title="tipDateShort" title="Date only">{{date_short}}</button>
+                                <button type="button" class="template-chip" data-var="{{day}}" data-i18n-title="tipDay" title="Day of month without leading zero">{{day}}</button>
+                                <button type="button" class="template-chip" data-var="{{day_long}}" data-i18n-title="tipDayLong" title="Day of month with leading zero">{{day_long}}</button>
+                                <button type="button" class="template-chip" data-var="{{month}}" data-i18n-title="tipMonth" title="Month number without leading zero">{{month}}</button>
+                                <button type="button" class="template-chip" data-var="{{month_long}}" data-i18n-title="tipMonthLong" title="Month number with leading zero">{{month_long}}</button>
+                                <button type="button" class="template-chip" data-var="{{month_name}}" data-i18n-title="tipMonthName" title="Month name">{{month_name}}</button>
+                                <button type="button" class="template-chip" data-var="{{month_name_short}}" data-i18n-title="tipMonthNameShort" title="Short month name">{{month_name_short}}</button>
+                                <button type="button" class="template-chip" data-var="{{year}}" data-i18n-title="tipYear" title="Year">{{year}}</button>
+                                <button type="button" class="template-chip" data-var="{{start_time}}" data-i18n-title="tipStartTime" title="Start time">{{start_time}}</button>
+                                <button type="button" class="template-chip" data-var="{{end_time}}" data-i18n-title="tipEndTime" title="End time">{{end_time}}</button>
+                                <button type="button" class="template-chip" data-var="{{duration}}" data-i18n-title="tipDuration" title="Duration in minutes">{{duration}}</button>
+                                <button type="button" class="template-chip" data-var="{{number}}" data-i18n-title="tipNumber" title="Running number for Copy all">{{number}}</button>
+                                <button type="button" class="template-chip" data-var="{{number_dot}}" data-i18n-title="tipNumberDot" title="Period for Copy all, otherwise empty">{{number_dot}}</button>
+                                <button type="button" class="template-chip" data-var="{{number_space}}" data-i18n-title="tipNumberSpace" title="Space for Copy all, otherwise empty">{{number_space}}</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: var(--spacing-md);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                                <label for="templateInput" class="label" style="margin-bottom: 0;" data-i18n="labelTemplate">Template</label>
+                                <button type="button" id="resetTemplateBtn" class="btn-link" style="font-size: 12px;" data-i18n="resetTemplateBtn">Restore default</button>
+                            </div>
+                            <div class="template-editor-wrapper">
+                                <div class="template-highlight-backdrop" aria-hidden="true">
+                                    <div id="templateHighlightContent"></div>
+                                </div>
+                                <textarea id="templateInput" class="template-editor" rows="7" spellcheck="false"></textarea>
+                            </div>
+                        </div>
+                        <div class="template-preview-box">
+                            <div class="template-preview-header" data-i18n="previewLabel">Preview</div>
+                            <pre id="templatePreview" class="template-preview-content"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                    <!-- About Tab -->
+                    <div id="aboutTabContent" class="tab-content" style="display: none;">
+                        <div style="text-align: center; padding: 16px 0 24px;">
+                            <img src="../assets/icons/icon48.png" alt="M365 Timeslot-Finder for Outlook" width="48" height="48" style="border-radius: 10px; margin-bottom: 10px;">
+                            <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">M365 Timeslot-Finder for Outlook</div>
+                            <div id="aboutVersionText" style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;"></div>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 12px;" data-i18n="aboutDescription"></p>
+                            <a href="https://github.com/Hope-IT-Works/m365-timeslot-finder" target="_blank" rel="noopener noreferrer" style="font-size: 12px; color: var(--accent-color); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                                Hope-IT-Works/m365-timeslot-finder
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="modal-footer">
+                    <button id="cancelSettingsBtn" class="btn" style="background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color);" data-i18n="cancelBtn">Abbrechen</button>
+                    <button id="saveSettingsBtn" class="btn btn-primary" data-i18n="saveBtn">Speichern</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <!-- Scripts in correct order -->
+    <script src="../utils/i18n.js"></script>
+    <script src="../utils/auth.js"></script>
+    <script src="../utils/api.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>
