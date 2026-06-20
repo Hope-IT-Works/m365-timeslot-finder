@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>M365 Timeslot-Finder – Screenshots v2</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1280px; height: 800px; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* ── Switcher ───────────────────────────────────────────────────────── */
+#switcher {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  display: flex; gap: 6px; padding: 5px 10px;
+  background: #111; color: #fff; font-size: 12px; align-items: center;
+}
+#switcher button { background:#333;border:1px solid #555;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px; }
+#switcher button.active { background:#0078d4;border-color:#0078d4; }
+.screenshot-mode #switcher { display:none; }
+
+/* ── Root layout ────────────────────────────────────────────────────── */
+.scene { display:none; width:1280px; height:800px; }
+.screenshot-mode .scene { position:absolute; top:0; left:0; }
+body:not(.screenshot-mode) .scene { margin-top:29px; height:771px; }
+
+.layout { display:flex; width:1280px; height:100%; }
+
+/* ── Left panel ─────────────────────────────────────────────────────── */
+.lp { flex:1; display:flex; flex-direction:column; justify-content:center; padding:48px 56px; overflow:hidden; }
+
+/* ── Right: extension panel ─────────────────────────────────────────── */
+.rp { width:420px; flex-shrink:0; display:flex; flex-direction:column; overflow:hidden; }
+.rp-scroll { flex:1; overflow-y:auto; overflow-x:hidden; }
+
+/* ── Extension UI ───────────────────────────────────────────────────── */
+.ext {
+  --pc:#0078d4; --ok:#107c10; --t1:#323130; --t2:#605e5c; --t3:#8a8886;
+  --bg:#ffffff; --bg2:#faf9f8; --bg3:#f3f2f1; --bd:#e1dfdd; --r:4px; --rl:8px;
+  padding:18px 20px; font-size:14px; color:var(--t1); background:var(--bg);
+  font-family:'Segoe UI',system-ui,sans-serif; min-height:100%;
+}
+.ext.dk {
+  --pc:#3a8fd9; --ok:#6ccb5f;
+  --t1:#ffffff; --t2:#d1d1d1; --t3:#a0a0a0;
+  --bg:#1e1e1e; --bg2:#2d2d2d; --bg3:#3a3a3a; --bd:#474747;
+  background:var(--bg);
+}
+.eh  { display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; }
+.ehl { display:flex; align-items:center; gap:9px; }
+.eh h1 { font-size:14px; font-weight:600; color:var(--t1); }
+.lic { color:var(--pc); }
+.icb { width:30px;height:30px;border:1px solid var(--bd);background:transparent;color:var(--t2);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:default; }
+.ub  { display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:9px 11px;margin-bottom:15px; }
+.ubl { display:flex;align-items:center;gap:9px; }
+.av  { width:34px;height:34px;border-radius:50%;background:var(--pc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0; }
+.un  { font-weight:600;font-size:13px;color:var(--t1); }
+.ue  { font-size:11px;color:var(--t2); }
+.ua  { display:flex;gap:3px; }
+.sib { width:26px;height:26px;border:none;background:transparent;color:var(--t2);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:default; }
+.ac  { background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:24px;text-align:center; }
+.am  { color:var(--t2);margin-bottom:15px;font-size:13px;line-height:1.6; }
+.bms { display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 16px;background:var(--pc);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:default;margin-bottom:14px; }
+.blk { display:inline-flex;align-items:center;gap:4px;color:var(--pc);background:transparent;border:none;font-size:12px;cursor:default; }
+.sec { margin-bottom:15px; }
+.st  { font-size:13px;font-weight:600;color:var(--t1);margin-bottom:9px; }
+.fg  { display:flex;flex-direction:column;gap:5px;margin-bottom:9px; }
+.lbl { display:flex;align-items:center;gap:4px;font-weight:600;font-size:11px;color:var(--t1); }
+.lbl svg { color:var(--t2); }
+.inp { width:100%;padding:6px 9px;border:1px solid var(--bd);border-radius:var(--r);font-size:13px;color:var(--t1);background:var(--bg);font-family:inherit; }
+.inp.fc { border-color:var(--pc);box-shadow:0 0 0 1px var(--pc);outline:none; }
+select.inp { cursor:default; }
+.pl  { border:1px solid var(--bd);border-radius:var(--r);background:var(--bg);overflow:hidden;margin-top:3px; }
+.pi  { display:flex;align-items:center;gap:9px;padding:6px 9px;cursor:default; }
+.pi:not(:last-child) { border-bottom:1px solid var(--bd); }
+.pi.on { background:color-mix(in srgb,var(--pc) 6%,transparent); }
+.pc2 { width:15px;height:15px;border:2px solid var(--bd);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--bg); }
+.pc2.on { background:var(--pc);border-color:var(--pc); }
+.pn  { font-weight:500;font-size:12px;color:var(--t1); }
+.pe  { font-size:11px;color:var(--t2); }
+.cps { display:flex;flex-wrap:wrap;gap:5px;margin-top:7px; }
+.cp2 { display:inline-flex;align-items:center;gap:3px;padding:2px 9px;background:var(--pc);color:#fff;border-radius:12px;font-size:11px;font-weight:500; }
+.cpx { width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:9px; }
+.bsu { width:100%;padding:9px 14px;background:var(--pc);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;cursor:default;margin-top:4px; }
+.rh  { display:flex;align-items:center;justify-content:space-between;margin-bottom:11px; }
+.rc  { background:var(--pc);color:#fff;padding:2px 9px;border-radius:11px;font-size:11px;font-weight:600; }
+.bns { display:inline-flex;align-items:center;gap:3px;padding:4px 9px;font-size:11px;font-weight:500;color:var(--pc);background:var(--bg);border:1px solid var(--pc);border-radius:var(--r);cursor:default; }
+.sc  { display:flex;align-items:center;justify-content:space-between;gap:9px;border:1px solid var(--bd);border-radius:var(--rl);padding:10px 11px;background:var(--bg);margin-bottom:7px; }
+.sc.hi { border-color:var(--pc);box-shadow:0 1px 3px rgba(0,120,212,.12); }
+.sd  { font-size:13px;font-weight:600;color:var(--t1); }
+.stm { font-size:12px;color:var(--t2);margin-top:1px; }
+.dur { font-size:11px;color:var(--t3);margin-top:1px; }
+.bcp { display:flex;align-items:center;gap:4px;padding:5px 10px;background:var(--bg2);color:var(--t1);border:1px solid var(--bd);border-radius:var(--r);font-size:11px;cursor:default;white-space:nowrap; }
+.bcp.ok { background:var(--ok);color:#fff;border-color:var(--ok); }
+.bca { width:100%;padding:7px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);color:var(--t1);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:5px;cursor:default;margin-top:3px; }
+.mo  { position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:10;display:flex;align-items:flex-start;justify-content:center;padding-top:16px; }
+.mb  { width:360px;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden;max-height:600px; }
+.mhd { display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border-bottom:1px solid #e1dfdd; }
+.mhd h2 { font-size:15px;font-weight:600;color:#323130; }
+.mts { display:flex;border-bottom:1px solid #e1dfdd;padding:0 10px;background:#faf9f8; }
+.mt  { display:inline-flex;align-items:center;gap:4px;padding:9px 11px;border:none;border-bottom:2px solid transparent;background:transparent;color:#605e5c;font-size:12px;font-weight:500;cursor:default;margin-bottom:-1px;white-space:nowrap; }
+.mt.on { color:#0078d4;border-bottom-color:#0078d4;font-weight:600; }
+.mbd { padding:15px;overflow-y:auto;flex:1; }
+.ml  { font-size:11px;font-weight:600;color:#323130;margin-bottom:5px;display:block; }
+.md  { font-size:12px;color:#605e5c;margin-bottom:9px;line-height:1.5; }
+.tc  { display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px; }
+.tch { padding:2px 7px;background:#f3f2f1;border:1px solid #e1dfdd;border-radius:3px;font-family:monospace;font-size:11px;color:#0078d4;cursor:default; }
+.te  { width:100%;height:100px;padding:7px 9px;border:1px solid #e1dfdd;border-radius:4px;font-family:'Consolas',monospace;font-size:12px;color:#323130;background:#fff;resize:none;margin-bottom:11px;line-height:1.6; }
+.pvl { font-size:10px;font-weight:600;color:#8a8886;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px; }
+.pvb { background:#f3f2f1;border:1px solid #e1dfdd;border-radius:4px;padding:9px;font-family:'Consolas',monospace;font-size:11px;color:#605e5c;white-space:pre;line-height:1.65; }
+.ph  { color:#0078d4;font-weight:600; }
+.mft { display:flex;justify-content:flex-end;gap:7px;padding:11px 15px;border-top:1px solid #e1dfdd; }
+.mbs { padding:5px 13px;background:#faf9f8;border:1px solid #e1dfdd;border-radius:4px;font-size:12px;color:#323130;cursor:default; }
+.mbp { padding:5px 13px;background:#0078d4;border:1px solid #0078d4;border-radius:4px;font-size:12px;color:#fff;font-weight:600;cursor:default; }
+.tst { position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#107c10;color:#fff;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.2);display:flex;align-items:center;gap:7px;white-space:nowrap;z-index:20; }
+
+/* ── Left panel themes ──────────────────────────────────────────────── */
+/* shared typography */
+.lp h2 { font-size:36px;font-weight:700;line-height:1.18;color:#fff;margin-bottom:12px;letter-spacing:-.3px; }
+.lp .sub { font-size:15px;color:rgba(255,255,255,.78);line-height:1.6;margin-bottom:34px;max-width:500px; }
+
+/* badge */
+.badge { display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:20px;padding:4px 12px 4px 8px;font-size:12px;font-weight:600;color:rgba(255,255,255,.88);margin-bottom:22px; }
+
+/* feature cards (scene 1) */
+.fg4 { display:grid;grid-template-columns:1fr 1fr;gap:13px;max-width:540px; }
+.fcard { background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:16px 17px;display:flex;align-items:flex-start;gap:12px; }
+.fi { width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff; }
+.ft { font-size:13px;font-weight:600;color:#fff;margin-bottom:3px; }
+.fd { font-size:12px;color:rgba(255,255,255,.73);line-height:1.4; }
+
+/* steps (scene 2) */
+.steps { display:flex;flex-direction:column;gap:0;margin-top:6px; }
+.step  { display:flex;align-items:flex-start;gap:18px;padding-bottom:26px; }
+.step:last-child { padding-bottom:0; }
+.sl    { display:flex;flex-direction:column;align-items:center; }
+.sn    { width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.45);color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.sc2   { width:2px;flex:1;background:rgba(255,255,255,.22);min-height:18px;margin-top:4px; }
+.sb    { padding-top:8px; }
+.stt   { font-size:15px;font-weight:600;color:#fff;margin-bottom:4px; }
+.stx   { font-size:13px;color:rgba(255,255,255,.73);line-height:1.5;max-width:440px; }
+
+/* copy demo (scene 3) */
+.cdemo { background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:22px 26px;max-width:520px; }
+.cdlbl { font-size:11px;font-weight:600;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:13px; }
+.citem { background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:13px 15px;margin-bottom:9px; }
+.citem:last-of-type { margin-bottom:0; }
+.cih   { display:flex;align-items:center;justify-content:space-between;margin-bottom:7px; }
+.ctl   { font-size:13px;font-weight:600;color:#fff; }
+.ctag  { background:rgba(255,255,255,.2);color:#fff;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600; }
+.ctxt  { font-family:'Consolas',monospace;font-size:12px;color:rgba(255,255,255,.78);line-height:1.65; }
+.chi   { color:#50e6ff;font-weight:600; }
+.call  { margin-top:14px;display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.65);font-size:13px; }
+
+/* template demo (scene 4) */
+.tdemo { background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:22px 26px;max-width:520px; }
+.tcols { display:flex;gap:14px;align-items:flex-start; }
+.tcol  { flex:1; }
+.tclbl { font-size:10px;font-weight:600;color:rgba(255,255,255,.52);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;display:flex;align-items:center;gap:5px; }
+.tcode { background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:11px;font-family:'Consolas',monospace;font-size:12px;color:rgba(255,255,255,.82);line-height:1.7;white-space:pre; }
+.tph   { color:#50e6ff;font-weight:600; }
+.tarr  { display:flex;align-items:center;padding-top:34px;color:rgba(255,255,255,.38); }
+.tres  { background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.11);border-radius:6px;padding:11px;font-size:12px;color:rgba(255,255,255,.82);line-height:1.7;white-space:pre; }
+.phls  { margin-top:15px; }
+.phlb  { font-size:10px;font-weight:600;color:rgba(255,255,255,.52);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px; }
+.phrow { display:flex;flex-wrap:wrap;gap:5px; }
+.pchp  { padding:3px 9px;background:rgba(80,230,255,.11);border:1px solid rgba(80,230,255,.33);border-radius:4px;font-family:monospace;font-size:11px;color:#50e6ff;cursor:default; }
+
+/* feature grid (scene 5) */
+.fg6 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;max-width:570px; }
+.gc  { background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:17px 15px; }
+.gi  { width:38px;height:38px;border-radius:9px;margin-bottom:11px;display:flex;align-items:center;justify-content:center; }
+.gtt { font-size:13px;font-weight:600;color:#fff;margin-bottom:4px; }
+.gtx { font-size:12px;color:rgba(255,255,255,.62);line-height:1.4; }
+</style>
+</head>
+<body>
+<div id="switcher">
+  <span style="opacity:.6;margin-right:4px">Scene:</span>
+  <button onclick="show(1)" id="s1">1 – Login</button>
+  <button onclick="show(2)" id="s2">2 – Search form</button>
+  <button onclick="show(3)" id="s3">3 – Results</button>
+  <button onclick="show(4)" id="s4">4 – Template</button>
+  <button onclick="show(5)" id="s5">5 – Dark mode</button>
+  <button onclick="document.body.classList.toggle('screenshot-mode')" style="margin-left:10px;background:#444">Toggle bar</button>
+</div>
+
+<!-- ═══════════════════════════════════ SCENE 1 – LOGIN / HERO -->
+<div id="scene1" class="scene">
+<div class="layout" style="background:linear-gradient(135deg,#0063b1 0%,#004e8c 50%,#003766 100%)">
+  <div class="lp">
+    <div class="badge">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Chrome Extension · Microsoft 365
+    </div>
+    <h2>Find the perfect<br>meeting time—<br>instantly.</h2>
+    <p class="sub">Stop scrolling through calendars. Automatically find free slots for all attendees and copy a ready-to-send meeting proposal.</p>
+    <div class="fg4">
+      <div class="fcard">
+        <div class="fi"><svg width="17" height="17" fill="none" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div><div class="ft">Multi-attendee</div><div class="fd">Checks everyone's availability at once</div></div>
+      </div>
+      <div class="fcard">
+        <div class="fi"><svg width="17" height="17" viewBox="0 0 20 20" fill="none"><rect width="9" height="9" fill="#F25022" rx="1"/><rect x="11" width="9" height="9" fill="#7FBA00" rx="1"/><rect y="11" width="9" height="9" fill="#00A4EF" rx="1"/><rect x="11" y="11" width="9" height="9" fill="#FFB900" rx="1"/></svg></div>
+        <div><div class="ft">M365 native</div><div class="fd">Powered by Microsoft Graph API</div></div>
+      </div>
+      <div class="fcard">
+        <div class="fi"><svg width="17" height="17" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div><div class="ft">One-click copy</div><div class="fd">Ready-to-paste meeting proposals</div></div>
+      </div>
+      <div class="fcard">
+        <div class="fi"><svg width="17" height="17" fill="none" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div><div class="ft">Privacy first</div><div class="fd">No calendar data stored, PKCE OAuth</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="rp" style="background:#fff;border-left:1px solid rgba(255,255,255,.15)">
+    <div class="rp-scroll"><div class="ext">
+      <div class="eh"><div class="ehl"><svg class="lic" width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><h1>M365 Timeslot-Finder</h1></div><div class="icb"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+      <div class="ac">
+        <p class="am">Sign in with your Microsoft account to find available time slots for your meetings.</p>
+        <button class="bms"><svg width="16" height="16" viewBox="0 0 20 20"><rect width="9" height="9" fill="#F25022" rx="1"/><rect x="11" width="9" height="9" fill="#7FBA00" rx="1"/><rect y="11" width="9" height="9" fill="#00A4EF" rx="1"/><rect x="11" y="11" width="9" height="9" fill="#FFB900" rx="1"/></svg>Sign in with Microsoft</button>
+        <div style="border-top:1px solid var(--bd);padding-top:12px"><button class="blk"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/></svg>Azure AD Settings</button></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════ SCENE 2 – SEARCH FORM -->
+<div id="scene2" class="scene">
+<div class="layout" style="background:linear-gradient(135deg,#005a9e 0%,#0078d4 60%,#1a8fe3 100%)">
+  <div class="lp">
+    <h2>Ready in<br>three steps.</h2>
+    <p class="sub" style="margin-bottom:28px">Configure your search and let the extension do the rest — no more manual calendar comparisons.</p>
+    <div class="steps">
+      <div class="step"><div class="sl"><div class="sn">1</div><div class="sc2"></div></div><div class="sb"><div class="stt">Set your search period</div><div class="stx">Pick a start and end date and choose the desired meeting duration (15 min – 8 hours).</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">2</div><div class="sc2"></div></div><div class="sb"><div class="stt">Select required attendees</div><div class="stx">Search your organisation's directory by name or email. All selected participants are checked simultaneously.</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="stt">Copy your meeting proposal</div><div class="stx">Get a list of all free slots and copy a formatted proposal to your clipboard — ready to paste into any email or chat.</div></div></div>
+    </div>
+  </div>
+  <div class="rp" style="background:#fff;border-left:1px solid rgba(255,255,255,.15)">
+    <div class="rp-scroll"><div class="ext">
+      <div class="eh"><div class="ehl"><svg class="lic" width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><h1>M365 Timeslot-Finder</h1></div><div class="icb"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+      <div class="ub"><div class="ubl"><div class="av">AJ</div><div><div class="un">Anna Johnson</div><div class="ue">a.johnson@contoso.com</div></div></div><div class="ua"><div class="sib"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/></svg></div><div class="sib"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M17 16L21 12M21 12L17 8M21 12H7M13 16V17C13 18.66 11.66 20 10 20H6C4.34 20 3 18.66 3 17V7C3 5.34 4.34 4 6 4H10C11.66 4 13 5.34 13 7V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div></div>
+      <div class="sec"><div class="st">Search period</div>
+        <div class="fg"><div class="lbl"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1 21 21 20.1 21 19V7C21 5.9 20.1 5 19 5H5C3.9 5 3 5.9 3 7V19C3 20.1 3.9 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Start time</div><input class="inp" type="text" value="Mon, 23 Jun 2026  09:00" readonly></div>
+        <div class="fg"><div class="lbl"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1 21 21 20.1 21 19V7C21 5.9 20.1 5 19 5H5C3.9 5 3 5.9 3 7V19C3 20.1 3.9 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> End time</div><input class="inp" type="text" value="Fri, 27 Jun 2026  18:00" readonly></div>
+        <div class="fg"><div class="lbl"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Duration</div><select class="inp"><option>30 minutes</option></select></div>
+      </div>
+      <div class="sec"><div class="st">Required attendees</div>
+        <div class="fg"><div class="lbl"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Search</div><input class="inp fc" type="text" value="Marc"></div>
+        <div class="pl"><div class="pi on"><div class="pc2 on"><svg width="9" height="9" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div><div><div class="pn">Marc Weber</div><div class="pe">m.weber@contoso.com</div></div></div><div class="pi"><div class="pc2"></div><div><div class="pn">Marcus Klein</div><div class="pe">m.klein@contoso.com</div></div></div></div>
+        <div class="cps"><div class="cp2">Sara Müller <div class="cpx">×</div></div><div class="cp2">Marc Weber <div class="cpx">×</div></div></div>
+      </div>
+      <button class="bsu"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Find free slots</button>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════ SCENE 3 – RESULTS -->
+<div id="scene3" class="scene">
+<div class="layout" style="background:linear-gradient(135deg,#004e8c 0%,#0078d4 55%,#28a8e0 100%)">
+  <div class="lp">
+    <h2>Your proposal,<br>ready to send.</h2>
+    <p class="sub">Each slot is formatted for you. Copy a single slot or all of them at once — perfect for email or Teams chat.</p>
+    <div class="cdemo">
+      <div class="cdlbl">Sample copied output</div>
+      <div class="citem"><div class="cih"><span class="ctl">Slot 1 — Mon, 23 Jun 2026</span><span class="ctag">Copied!</span></div><div class="ctxt">Meeting proposal:
+Date: <span class="chi">Monday, 23 June 2026</span>
+Time: <span class="chi">11:00 – 11:30</span>
+Duration: <span class="chi">30</span> minutes</div></div>
+      <div class="citem" style="opacity:.65"><div class="cih"><span class="ctl">Slot 2 — Tue, 24 Jun 2026</span></div><div class="ctxt">Meeting proposal:
+Date: <span class="chi">Tuesday, 24 June 2026</span>
+Time: <span class="chi">10:00 – 10:30</span>
+Duration: <span class="chi">30</span> minutes</div></div>
+      <div class="call"><svg width="15" height="15" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Or use "Copy all" to copy every slot at once</div>
+    </div>
+  </div>
+  <div class="rp" style="background:#fff;border-left:1px solid rgba(255,255,255,.15);position:relative">
+    <div class="rp-scroll"><div class="ext">
+      <div class="eh"><div class="ehl"><svg class="lic" width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><h1>M365 Timeslot-Finder</h1></div><div class="icb"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+      <div class="ub"><div class="ubl"><div class="av">AJ</div><div><div class="un">Anna Johnson</div><div class="ue">a.johnson@contoso.com</div></div></div><div class="ua"><div class="sib"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/></svg></div></div></div>
+      <div class="rh"><span class="st" style="margin-bottom:0">Available slots</span><div style="display:flex;gap:7px;align-items:center"><span class="rc">5 found</span><button class="bns"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> New search</button></div></div>
+      <div class="sc hi"><div><div class="sd">Monday, 23 Jun 2026</div><div class="stm">11:00 – 11:30 AM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp ok"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg> Copied!</button></div>
+      <div class="sc"><div><div class="sd">Tuesday, 24 Jun 2026</div><div class="stm">10:00 – 10:30 AM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy</button></div>
+      <div class="sc"><div><div class="sd">Thursday, 26 Jun 2026</div><div class="stm">09:30 – 10:00 AM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy</button></div>
+      <div class="sc"><div><div class="sd">Friday, 27 Jun 2026</div><div class="stm">02:00 – 02:30 PM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy</button></div>
+      <button class="bca"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy all slots</button>
+    </div></div>
+    <div class="tst"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>Slot copied to clipboard</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════ SCENE 4 – TEMPLATE SETTINGS -->
+<div id="scene4" class="scene">
+<div class="layout" style="background:linear-gradient(135deg,#003766 0%,#005a9e 50%,#0078d4 100%)">
+  <div class="lp">
+    <h2>Fully customisable<br>output format.</h2>
+    <p class="sub">Define exactly how copied proposals look — with named placeholders and a live preview as you type.</p>
+    <div class="tdemo">
+      <div class="tcols">
+        <div class="tcol">
+          <div class="tclbl"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2"/></svg>Template</div>
+          <div class="tcode">Meeting proposal:
+Date: <span class="tph">{{date}}</span>
+Time: <span class="tph">{{starttime}}</span> – <span class="tph">{{endtime}}</span>
+Duration: <span class="tph">{{duration}}</span> min</div>
+        </div>
+        <div class="tarr"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="tcol">
+          <div class="tclbl"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Result</div>
+          <div class="tres">Meeting proposal:
+Date: Mon, 23 Jun 2026
+Time: 11:00 – 11:30
+Duration: 30 min</div>
+        </div>
+      </div>
+      <div class="phls"><div class="phlb">Available placeholders</div><div class="phrow"><span class="pchp">{{date}}</span><span class="pchp">{{weekday}}</span><span class="pchp">{{starttime}}</span><span class="pchp">{{endtime}}</span><span class="pchp">{{duration}}</span></div></div>
+    </div>
+  </div>
+  <div class="rp" style="background:#fff;border-left:1px solid rgba(255,255,255,.15);position:relative">
+    <div class="rp-scroll" style="filter:blur(2px);opacity:.3;pointer-events:none"><div class="ext"><p style="padding:20px;color:#888">Extension…</p></div></div>
+    <div class="mo">
+      <div class="mb">
+        <div class="mhd"><h2>Settings</h2><button class="sib" style="color:#605e5c"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+        <div class="mts"><button class="mt">General</button><button class="mt">Azure AD</button><button class="mt on">Template</button><button class="mt">About</button></div>
+        <div class="mbd">
+          <label class="ml">Output template</label>
+          <p class="md">Customise the text that is copied for each time slot. Click a placeholder to insert it.</p>
+          <div class="tc"><span class="tch">{{date}}</span><span class="tch">{{weekday}}</span><span class="tch">{{starttime}}</span><span class="tch">{{endtime}}</span><span class="tch">{{duration}}</span></div>
+          <textarea class="te" readonly>Meeting proposal:
+Date: {{date}}
+Time: {{starttime}} – {{endtime}}
+Duration: {{duration}} min</textarea>
+          <div class="pvl">Live preview</div>
+          <div class="pvb">Meeting proposal:
+Date: <span class="ph">Mon, 23 Jun 2026</span>
+Time: <span class="ph">11:00</span> – <span class="ph">11:30</span>
+Duration: <span class="ph">30</span> min</div>
+        </div>
+        <div class="mft"><button class="mbs">Reset to default</button><button class="mbp">Save</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════ SCENE 5 – DARK MODE -->
+<div id="scene5" class="scene">
+<div class="layout" style="background:linear-gradient(135deg,#0d1117 0%,#161b22 55%,#1c2128 100%)">
+  <div class="lp">
+    <h2>Works your way.</h2>
+    <p class="sub">A carefully crafted experience that adapts to your preferences — from appearance to language and output format.</p>
+    <div class="fg6">
+      <div class="gc"><div class="gi" style="background:rgba(58,143,217,.18)"><svg width="19" height="19" fill="none" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#3a8fd9" stroke-width="2"/></svg></div><div class="gtt">Dark mode</div><div class="gtx">Full dark theme, easy on the eyes</div></div>
+      <div class="gc"><div class="gi" style="background:rgba(108,203,95,.18)"><svg width="19" height="19" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#6ccb5f" stroke-width="2"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20" stroke="#6ccb5f" stroke-width="2"/></svg></div><div class="gtt">DE &amp; EN</div><div class="gtx">Runtime language switching</div></div>
+      <div class="gc"><div class="gi" style="background:rgba(255,198,112,.18)"><svg width="19" height="19" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#ffc670" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="#ffc670" stroke-width="2"/></svg></div><div class="gtt">Custom template</div><div class="gtx">Define your own output format</div></div>
+      <div class="gc"><div class="gi" style="background:rgba(244,135,113,.18)"><svg width="19" height="19" fill="none" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#f48771" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#f48771" stroke-width="2" stroke-linecap="round"/></svg></div><div class="gtt">PKCE OAuth</div><div class="gtx">Secure login, no tokens on disk</div></div>
+      <div class="gc"><div class="gi" style="background:rgba(80,230,255,.18)"><svg width="19" height="19" fill="none" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#50e6ff" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#50e6ff" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#50e6ff" stroke-width="2" stroke-linecap="round"/></svg></div><div class="gtt">Multi-attendee</div><div class="gtx">Check everyone's calendar at once</div></div>
+      <div class="gc"><div class="gi" style="background:rgba(58,143,217,.12)"><svg width="19" height="19" viewBox="0 0 20 20" fill="none"><rect width="9" height="9" fill="#F25022" rx="1" opacity=".8"/><rect x="11" width="9" height="9" fill="#7FBA00" rx="1" opacity=".8"/><rect y="11" width="9" height="9" fill="#00A4EF" rx="1" opacity=".8"/><rect x="11" y="11" width="9" height="9" fill="#FFB900" rx="1" opacity=".8"/></svg></div><div class="gtt">Graph API</div><div class="gtx">Native Microsoft 365 integration</div></div>
+    </div>
+  </div>
+  <div class="rp" style="background:#1e1e1e;border-left:1px solid #474747">
+    <div class="rp-scroll"><div class="ext dk">
+      <div class="eh"><div class="ehl"><svg class="lic" width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><h1>M365 Timeslot-Finder</h1></div><div class="icb"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/></svg></div></div>
+      <div class="ub"><div class="ubl"><div class="av">AJ</div><div><div class="un">Anna Johnson</div><div class="ue">a.johnson@contoso.com</div></div></div><div class="ua"><div class="sib"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/></svg></div></div></div>
+      <div class="rh"><span class="st" style="margin-bottom:0">Available slots</span><div style="display:flex;gap:7px;align-items:center"><span class="rc">5 found</span><button class="bns">New search</button></div></div>
+      <div class="sc"><div><div class="sd">Monday, 23 Jun 2026</div><div class="stm">11:00 – 11:30 AM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy</button></div>
+      <div class="sc"><div><div class="sd">Tuesday, 24 Jun 2026</div><div class="stm">10:00 – 10:30 AM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy</button></div>
+      <div class="sc"><div><div class="sd">Thursday, 26 Jun 2026</div><div class="stm">09:30 – 10:00 AM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy</button></div>
+      <div class="sc"><div><div class="sd">Friday, 27 Jun 2026</div><div class="stm">02:00 – 02:30 PM</div><div class="dur">30 min · 2 attendees free</div></div><button class="bcp"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy</button></div>
+      <button class="bca"><svg width="12" height="12" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copy all slots</button>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<script>
+function show(n) {
+  document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+  document.getElementById('scene' + n).style.display = 'flex';
+  document.querySelectorAll('#switcher button').forEach(b => b.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+}
+show(parseInt(location.hash.replace('#','')) || 1);
+</script>
+</body>
+</html>
