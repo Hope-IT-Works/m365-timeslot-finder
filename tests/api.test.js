@@ -1,6 +1,5 @@
-import { describe, test, expect } from 'bun:test';
-
-const { GraphAPI } = require('../utils/api.js');
+import { describe, test, expect } from 'vitest';
+import { GraphAPI } from '../utils/api.js';
 
 // ---------------------------------------------------------------------------
 // GraphAPI.renderTemplate

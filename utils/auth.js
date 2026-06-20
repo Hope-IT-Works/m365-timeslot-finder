@@ -1,5 +1,5 @@
 // Authentication utility for Microsoft Graph API
-class AuthManager {
+export class AuthManager {
     constructor() {
         this.accessToken = null;
         this.tokenExpiry = null;
@@ -302,8 +302,4 @@ class AuthManager {
     }
 }
 
-// Export singleton instance
-const authManager = new AuthManager();
 
-// CommonJS export for test environments
-if (typeof module !== 'undefined') module.exports = { AuthManager };

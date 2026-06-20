@@ -151,33 +151,34 @@ See [PRIVACY_POLICY.md](PRIVACY_POLICY.md) for details.
 - **Vanilla JavaScript** (ES6+): No external frameworks
 - **Microsoft Graph API**: Calendar and directory integration
 - **OAuth 2.0 PKCE**: Authorization Code Flow without client secret
-- **Bun**: Test runner (`bun test`)
-- **web-ext**: Build and lint (`npm run build`, `npm run lint`)
+- **WXT**: Build framework for Chrome Extensions (`bun run build`, `bun run build:zip`)
+- **Vitest**: Test runner (`bun run test`)
 
 ### Project Structure
 
 ```text
 m365-timeslot-finder/
-├── manifest.json
+├── wxt.config.js           # WXT configuration (replaces manifest.json)
+├── vitest.config.js        # Vitest configuration
 ├── package.json
-├── bunfig.toml
-├── popup/
-│   ├── popup.html
-│   ├── popup.js
-│   └── styles.css
-├── background/
-│   └── background.js
+├── entrypoints/
+│   ├── background.js       # Service worker; opens side panel on icon click
+│   └── sidepanel/
+│       ├── index.html      # Side panel HTML
+│       ├── main.js         # Side panel entry script
+│       └── style.css
+├── public/
+│   ├── assets/
+│   │   └── icons/
+│   └── _locales/
+│       ├── de/messages.json
+│       └── en/messages.json
 ├── utils/
-│   ├── api.js              # GraphAPI class
-│   ├── auth.js             # AuthManager class (PKCE OAuth)
-│   └── i18n.js             # Runtime i18n module
-├── _locales/
-│   ├── de/messages.json
-│   └── en/messages.json
-├── assets/
-│   └── icons/
+│   ├── api.js              # GraphAPI class (ES module)
+│   ├── auth.js             # AuthManager class (PKCE OAuth, ES module)
+│   └── i18n.js             # Runtime i18n module (ES module)
 ├── tests/
-│   ├── setup.js
+│   ├── setup.js            # Vitest + WXT fake-browser setup
 │   ├── api.test.js
 │   └── auth.test.js
 ├── PRIVACY_POLICY.md
@@ -194,7 +195,7 @@ m365-timeslot-finder/
 ### Running Tests
 
 ```bash
-bun test
+bun run test
 ```
 
 ## Customization
@@ -209,7 +210,7 @@ In [utils/api.js](utils/api.js), change the minimum confidence threshold for mee
 
 ### Maximum Number of Results
 
-In [popup/popup.js](popup/popup.js), line 4:
+In [entrypoints/sidepanel/main.js](entrypoints/sidepanel/main.js), line 7:
 
 ```javascript
 const MAX_DISPLAYED_SLOTS = 10;
@@ -275,7 +276,7 @@ Duration: {{duration}} minutes
 
 - Reload the extension at `chrome://extensions/`
 - Check the Chrome DevTools console for errors
-- Verify `manifest.json` is valid
+- Verify `wxt.config.js` is valid and run `bun run build` to check for errors
 
 ## License
 

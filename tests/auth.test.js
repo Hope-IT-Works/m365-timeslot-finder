@@ -1,6 +1,5 @@
-import { describe, test, expect } from 'bun:test';
-
-const { AuthManager } = require('../utils/auth.js');
+import { describe, test, expect } from 'vitest';
+import { AuthManager } from '../utils/auth.js';
 
 // ---------------------------------------------------------------------------
 // AuthManager.generateRandomString

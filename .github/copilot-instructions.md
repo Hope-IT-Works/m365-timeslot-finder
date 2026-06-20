@@ -54,8 +54,8 @@ A modern Chrome Extension that opens as a **Side Panel** and finds free time slo
 - **OAuth 2.0 with PKCE** for authentication
 - **Vanilla JavaScript** (ES6+)
 - **Modern CSS** for UI styling
-- **Bun** as test runner (`bun test`)
-- **web-ext** for building and linting
+- **WXT** as build framework (`bun run build`, `bun run build:zip`)
+- **Vitest** as test runner (`bun run test`)
 
 ### API Integration
 
@@ -92,31 +92,32 @@ A modern Chrome Extension that opens as a **Side Panel** and finds free time slo
 timeslot-finder/
 ├── .github/
 │   └── copilot-instructions.md
-├── manifest.json
-├── bunfig.toml             # Bun config: preloads tests/setup.js
-├── package.json            # devDependencies: web-ext, chrome-types
-├── popup/
-│   ├── popup.html          # Side panel HTML (referenced by manifest side_panel)
-│   ├── popup.js
-│   └── styles.css
-├── background/
-│   └── background.js       # Service worker; opens side panel on icon click
-├── assets/
-│   └── icons/
-│       ├── icon16.png
-│       ├── icon48.png
-│       └── icon128.png
+├── wxt.config.js           # WXT configuration (replaces manifest.json)
+├── vitest.config.js        # Vitest + WxtVitest plugin configuration
+├── package.json            # devDependencies: wxt, vitest
+├── entrypoints/
+│   ├── background.js       # Service worker (defineBackground); opens side panel
+│   └── sidepanel/
+│       ├── index.html      # Side panel HTML
+│       ├── main.js         # Side panel entry script (imports utils as ES modules)
+│       └── style.css
+├── public/
+│   ├── assets/
+│   │   └── icons/
+│   │       ├── icon16.png
+│   │       ├── icon48.png
+│   │       └── icon128.png
+│   └── _locales/
+│       ├── de/
+│       │   └── messages.json
+│       └── en/
+│           └── messages.json
 ├── utils/
-│   ├── api.js              # GraphAPI class
-│   ├── auth.js             # AuthManager class (PKCE OAuth)
-│   └── i18n.js             # Custom i18n module (runtime locale switching)
-├── _locales/
-│   ├── de/
-│   │   └── messages.json
-│   └── en/
-│       └── messages.json
+│   ├── api.js              # GraphAPI class (ES module export)
+│   ├── auth.js             # AuthManager class (PKCE OAuth, ES module export)
+│   └── i18n.js             # Custom i18n module (ES module export)
 ├── tests/
-│   ├── setup.js            # Chrome API mocks (preloaded by bunfig.toml)
+│   ├── setup.js            # Vitest setup: fakeBrowser reset + i18n mock
 │   ├── api.test.js
 │   └── auth.test.js
 └── README.md
@@ -185,10 +186,11 @@ timeslot-finder/
 - `chrome.storage.local` for all persistent state
 
 ### Testing
-- Test runner: **Bun** (`bun test`)
-- Chrome API mocks in `tests/setup.js` (preloaded via `bunfig.toml`)
+- Test runner: **Vitest** (`bun run test`)
+- WXT fake-browser polyfill in `tests/setup.js` (via `wxt/testing/fake-browser`)
+- `utils/i18n.js` is mocked in setup to prevent `fetch` calls to `chrome-extension://` URLs
 - Unit tests for `GraphAPI` (`tests/api.test.js`) and `AuthManager` (`tests/auth.test.js`)
-- Build/lint via `web-ext` (`npm run build`, `npm run lint`)
+- Build via `wxt` (`bun run build`), ZIP for Chrome Web Store via `bun run build:zip`
 
 ## Deployment & Installation
 

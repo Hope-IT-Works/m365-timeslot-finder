@@ -1,5 +1,7 @@
 // Microsoft Graph API utility functions
-class GraphAPI {
+import { i18n } from './i18n.js';
+
+export class GraphAPI {
     constructor(authManager) {
         this.authManager = authManager;
         this.baseUrl = 'https://graph.microsoft.com/v1.0';
@@ -223,9 +225,4 @@ class GraphAPI {
 }
 
 // Export singleton instance (browser context; authManager comes from auth.js loaded earlier)
-if (typeof authManager !== 'undefined') {
-    var graphAPI = new GraphAPI(authManager); // eslint-disable-line no-var
-}
 
-// CommonJS export for test environments
-if (typeof module !== 'undefined') module.exports = { GraphAPI };

@@ -1,6 +1,6 @@
 // Custom i18n utility — supports runtime language switching via chrome.storage.
 // Loads messages from _locales/{lang}/messages.json independently of the browser UI language.
-const i18n = (() => {
+export const i18n = (() => {
     let messages = {};
     let _locale = 'de';
 
@@ -76,8 +76,10 @@ const i18n = (() => {
         await load(lang);
     }
 
-    // Kick off loading immediately; popup.js awaits initPromise before running
-    const initPromise = init();
+    // Kick off loading immediately; main.js awaits initPromise before running
+    const initPromise = init().catch(() => {
+        // Locale loading failed (e.g. in test environments without fetch support)
+    });
 
     return {
         initPromise,

@@ -1,36 +1,23 @@
-// Chrome API mock – loaded before all tests via bunfig.toml preload
+// Test setup for Vitest + WXT
+import { vi, beforeEach } from 'vitest';
+import { fakeBrowser } from 'wxt/testing/fake-browser';
 
-globalThis.chrome = {
+// Provide chrome.identity.getRedirectURL (not implemented by fake-browser)
+fakeBrowser.identity.getRedirectURL = () => 'https://mock-ext-id.chromiumapp.org/';
+
+// Reset the in-memory browser state before each test
+beforeEach(() => {
+    fakeBrowser.reset();
+});
+
+// Mock i18n module to prevent fetch to chrome-extension:// URLs in tests
+vi.mock('../utils/i18n.js', () => ({
     i18n: {
         getMessage: (key) => key,
-        getUILanguage: () => 'de-DE',
+        get locale() { return 'de'; },
+        applyToDOM: vi.fn(),
+        initPromise: Promise.resolve(),
+        load: vi.fn().mockResolvedValue(undefined),
     },
-    identity: {
-        getRedirectURL: () => 'https://mock-ext-id.chromiumapp.org/',
-        launchWebAuthFlow: (_opts, callback) => callback(null),
-    },
-    storage: {
-        local: {
-            get: (_keys, callback) => callback({}),
-            set: (_items, callback) => callback?.(),
-            remove: (_keys, callback) => callback?.(),
-        },
-    },
-    runtime: {
-        lastError: null,
-        getURL: (path) => `chrome-extension://mock-ext-id/${path}`,
-    },
-};
+}));
 
-// i18n mock (utils/i18n.js is an IIFE global; api.js references it directly)
-globalThis.i18n = {
-    getMessage: (key) => key,
-    get locale() { return 'de'; },
-    applyToDOM: () => {},
-    initPromise: Promise.resolve(),
-};
-
-// Minimal authManager mock so that api.js can initialise its singleton
-globalThis.authManager = {
-    getAccessToken: async () => 'mock-token',
-};

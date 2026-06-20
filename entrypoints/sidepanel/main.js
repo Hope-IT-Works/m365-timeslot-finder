@@ -1,4 +1,7 @@
 // Main popup script
+import { i18n } from '../../utils/i18n.js';
+import { AuthManager } from '../../utils/auth.js';
+import { GraphAPI } from '../../utils/api.js';
 
 // Constants
 const MAX_DISPLAYED_SLOTS = 10;

@@ -4,12 +4,14 @@
   "description": "Chrome Extension for finding free time slots in Microsoft 365 Outlook",
   "private": true,
   "scripts": {
-    "build": "web-ext build --source-dir . --artifacts-dir dist --ignore-files node_modules dist .github pinuts.md README.md package.json package-lock.json",
-    "lint": "web-ext lint --source-dir .",
-    "test": "bun test"
+    "dev": "wxt",
+    "build": "wxt build",
+    "build:zip": "wxt zip",
+    "postinstall": "wxt prepare",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "chrome-types": "latest",
-    "web-ext": "^10.4.0"
+    "vitest": "^4.1.9",
+    "wxt": "^0.20.26"
   }
 }
