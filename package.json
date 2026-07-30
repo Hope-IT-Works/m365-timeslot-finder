@@ -12,6 +12,6 @@
   },
   "devDependencies": {
     "vitest": "^4.1.9",
-    "wxt": "^0.20.26"
+    "wxt": "^0.21.2"
   }
 }
